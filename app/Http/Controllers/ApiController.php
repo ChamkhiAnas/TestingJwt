@@ -1,12 +1,15 @@
 <?php
 
 namespace App\Http\Controllers;
-
+use Illuminate\Support\Str;
 use JWTAuth;
 use App\User;
 use Illuminate\Http\Request;
 use Tymon\JWTAuth\Exceptions\JWTException;
 use App\Http\Requests\RegistrationFormRequest;
+use App\Mail\VerificationEmail;
+use Illuminate\Support\Facades\Mail;
+
 class APIController extends Controller
 {
     /**
@@ -72,15 +75,23 @@ public function login(Request $request)
         $user->name = $request->name;
         $user->email = $request->email;
         $user->password = bcrypt($request->password);
+        $user->email_verification_token=Str::random(32);
         $user->save();
 
-        if ($this->loginAfterSignUp) {
-            return $this->login($request);
-        }
+        // if ($this->loginAfterSignUp) {
+        //     return $this->login($request);
+        // }
 
-        return response()->json([
-            'success'   =>  true,
-            'data'      =>  $user
-        ], 200);
+        $mail= $user->email;
+        
+        Mail::to(request('email'))->send(new VerificationEmail($user));
+
+
+        // Mail::to($user->email)->send(new VerificationEmail($user));
+
+        // session()->flash('message', 'Please check your email to activate your account');
+           
+        // return redirect()->back();
+    
     }
 }
