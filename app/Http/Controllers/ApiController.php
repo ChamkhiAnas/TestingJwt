@@ -78,15 +78,16 @@ public function login(Request $request)
         $user->email_verification_token=Str::random(32);
         $user->save();
 
-        // if ($this->loginAfterSignUp) {
-        //     return $this->login($request);
-        // }
+     
 
         $mail= $user->email;
         
         Mail::to(request('email'))->send(new VerificationEmail($user));
 
 
+           // if ($this->loginAfterSignUp) {
+        //     return $this->login($request);
+        // }
         // Mail::to($user->email)->send(new VerificationEmail($user));
 
         // session()->flash('message', 'Please check your email to activate your account');
